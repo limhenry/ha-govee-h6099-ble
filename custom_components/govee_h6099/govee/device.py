@@ -271,15 +271,15 @@ def cmd_set_video_mode() -> bytes:
     """Build the frame to switch the device to Video Mode.
 
     Uses Govee Mode command type 0x05, submode 0x00 (Video V2).
-    Configured for: Part (segment control) and Movie (drama) mode.
+    Configured for: Part (segment control) and Movie mode.
 
     Returns:
         20-byte plaintext frame.
     """
     # Payload format derived from com.govee.pact_tvlightv4.detail.mode.VideoVm:
-    # [0x05 (Mode), 0x00 (Video V2), 0x00 (Part=0/All=1), 0x00 (Movie=0/Game=1), 0x32 (Vividness=50), 0x00 (VoiceSync=0), 0x32 (Sensitivity=50), 0x32 (Padding=50)]
+    # [0x00 (Video V2), 0x00 (Part), 0x09 (Movie Submode), 0x0A (Vividness=10%), 0x00 (VoiceSync=0), 0x02 (Sensitivity), 0x00 (Padding)]
     payload = bytes([
-        0x05, 0x00, 0x00, 0x00, 0x32, 0x00, 0x32, 0x32,
+        0x00, 0x00, 0x09, 0x0A, 0x00, 0x02, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     ])
     return _make_govee_frame(0x33, 0x05, payload)
