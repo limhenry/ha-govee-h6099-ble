@@ -74,12 +74,13 @@ from .govee.device import (
     StateUpdate,
     cmd_keepalive,
     cmd_power,
+    cmd_set_video_mode,
+    cmd_set_color_mode,
     encrypt_command,
     make_hs1_frame,
     make_hs2_frame,
     parse_hs1_response,
     parse_notification,
-    # snap_kelvin,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -231,6 +232,14 @@ class GoveeCoordinator:
         """Turn the light off (master power)."""
         if await self._send_command(cmd_power(False), label="POWER_OFF"):
             self.state.is_on = False
+            self._notify_listeners()
+
+    async def async_set_video_mode(self, enabled: bool) -> None:
+        """Toggle between Video Mode and Color Mode."""
+        cmd = cmd_set_video_mode() if enabled else cmd_set_color_mode()
+        label = "VIDEO_MODE" if enabled else "COLOR_MODE"
+        if await self._send_command(cmd, label=label):
+            self.state.is_video_mode = enabled
             self._notify_listeners()
 
     # ── Internal connection helpers ────────────────────────────────────────────

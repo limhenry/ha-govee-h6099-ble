@@ -70,6 +70,8 @@ class GoveeDeviceState:
 
     is_on: bool = False
     """Master power state."""
+    is_video_mode: bool = False
+    """True if Video Mode is active, False if Color Mode is active."""
 
 @dataclass
 class StateUpdate:
@@ -82,6 +84,7 @@ class StateUpdate:
 
     # ── Power ─────────────────────────────────────────────────────────────────
     is_on: bool | None = None
+    is_video_mode: bool | None = None
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -263,6 +266,40 @@ def cmd_power(on: bool) -> bytes:
         20-byte plaintext frame.
     """
     return _make_govee_frame(0x33, 0x01, bytes([0x01 if on else 0x00]))
+
+def cmd_set_video_mode() -> bytes:
+    """Build the frame to switch the device to Video Mode.
+
+    Uses Govee Mode command type 0x05, submode 0x00 (Video V2).
+    Configured for: Part (segment control) and Movie (drama) mode.
+
+    Returns:
+        20-byte plaintext frame.
+    """
+    # Payload format derived from com.govee.pact_tvlightv4.detail.mode.VideoVm:
+    # [0x05 (Mode), 0x00 (Video V2), 0x00 (Part=0/All=1), 0x00 (Movie=0/Game=1), 0x32 (Vividness=50), 0x00 (VoiceSync=0), 0x32 (Sensitivity=50), 0x32 (Padding=50)]
+    payload = bytes([
+        0x05, 0x00, 0x00, 0x00, 0x32, 0x00, 0x32, 0x32,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ])
+    return _make_govee_frame(0x33, 0x05, payload)
+
+def cmd_set_color_mode() -> bytes:
+    """Build the frame to switch the device to Color Mode.
+
+    Uses Govee Mode command type 0x05, submode 0x15 (Color V2).
+    Configured for: Solid White color (RGB: 255, 255, 255) with all segments selected.
+
+    Returns:
+        20-byte plaintext frame.
+    """
+    # Payload format derived from com.govee.pact_tvlightv4.ble.SubModeColorV2:
+    # [0x05 (Mode), 0x15 (Color V2), 0x01 (Static), R, G, B, 0x00, 0x00, 0x00, 0x00, 0xFF (Segs 0-7), 0x0F (Segs 8-11)]
+    payload = bytes([
+        0x05, 0x15, 0x01, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
+        0x00, 0x00, 0xFF, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00
+    ])
+    return _make_govee_frame(0x33, 0x05, payload)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Handshake frame builders  (Controller4Aes from com.govee.encryp.ble)

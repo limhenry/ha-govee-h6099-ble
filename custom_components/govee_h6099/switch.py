@@ -40,6 +40,7 @@ from .const import (
     MANUFACTURER,
     MODEL,
     SUFFIX_PERSIST,
+    SUFFIX_VIDEO_MODE,
 )
 from .coordinator import GoveeCoordinator
 
@@ -60,7 +61,10 @@ async def async_setup_entry(
     """
     coordinator: GoveeCoordinator = hass.data[DOMAIN][entry.entry_id]
     name: str = entry.data.get("name", "Govee H6099")
-    async_add_entities([GoveeConnectionModeSwitch(coordinator, entry, name)])
+    async_add_entities([
+        GoveeConnectionModeSwitch(coordinator, entry, name),
+        GoveeVideoModeSwitch(coordinator, entry, name),
+    ])
 
 
 class GoveeConnectionModeSwitch(SwitchEntity):
@@ -174,3 +178,66 @@ class GoveeConnectionModeSwitch(SwitchEntity):
         )
 
         self.async_write_ha_state()
+
+
+class GoveeVideoModeSwitch(SwitchEntity):
+    """Switch that toggles Video Sync Mode on a Govee H6099 backlight."""
+
+    _attr_has_entity_name = True
+    _attr_should_poll = False
+    _attr_icon = "mdi:television-ambient-light"
+
+    def __init__(
+        self,
+        coordinator: GoveeCoordinator,
+        entry: ConfigEntry,
+        friendly_name: str,
+    ) -> None:
+        """Initialise the switch entity.
+
+        Args:
+            coordinator: Coordinator managing the BLE connection.
+            entry:       Config entry.
+            friendly_name: User-assigned display name of the light.
+        """
+        self._coordinator = coordinator
+        self._entry = entry
+        self._friendly_name = friendly_name
+        self._attr_unique_id = f"{entry.data[CONF_MAC]}{SUFFIX_VIDEO_MODE}"
+        self._attr_name = "Video mode"
+        self._remove_callback: Callable[[], None] | None = None
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device registry info (same device as the other entities)."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry.data[CONF_MAC])},
+            name=self._friendly_name,
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+        )
+
+    @property
+    def is_on(self) -> bool:
+        """Return ``True`` when the device is in Video Mode."""
+        return self._coordinator.state.is_video_mode
+
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to coordinator updates."""
+        self._remove_callback = self._coordinator.register_update_callback(
+            self.async_write_ha_state
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Unsubscribe from coordinator updates."""
+        if self._remove_callback is not None:
+            self._remove_callback()
+            self._remove_callback = None
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Switch device to Video Mode."""
+        await self._coordinator.async_set_video_mode(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Switch device to Color Mode."""
+        await self._coordinator.async_set_video_mode(False)

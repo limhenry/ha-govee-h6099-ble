@@ -37,6 +37,7 @@ CONNECTION_MODE_DEFAULT = CONNECTION_MODE_PERSISTENT
 # ── Entity unique-ID suffixes ──────────────────────────────────────────────────
 
 SUFFIX_PERSIST = "_persist"
+SUFFIX_VIDEO_MODE = "_video_mode"
 
 # ── HA platform names forwarded from this integration ─────────────────────────
 
