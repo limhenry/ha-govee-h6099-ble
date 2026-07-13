@@ -1,17 +1,17 @@
-"""Config flow for the Govee H601E integration.
+"""Config flow for the Govee H6099 integration.
 
-Supports two discovery paths:
+This module provides the user-interface config flow in Home Assistant, supporting
+both auto-discovery and manual configuration:
 
-1. **Automatic BLE discovery** – Home Assistant's Bluetooth component detects
-   an H601E advertisement and triggers ``async_step_bluetooth``.  The user
-   only needs to confirm the device and optionally rename it.
+1. **Auto-discovery** – The HA Bluetooth discovery component matches on the
+   Govee BLE GATT service UUID, automatically initiates setup, prompts for
+   an H6099 advertisement and triggers ``async_step_bluetooth``.  The user
+   only has to confirm setup.
 
-2. **Manual entry** – The user selects "Add integration → Govee H601E" from
-   the HA integrations menu and enters the BLE address by hand.  This is the
-   fallback for devices whose advertisements don't match the manifest filters.
-
-Both paths share the same final step where the user assigns a display name and
-chooses the initial connection mode.
+2. **Manual entry** – The user selects "Add integration → Govee H6099" from
+   the UI.  The integration scans the HA BLE cache for any nearby Govee
+   devices; if found they are presented in a dropdown list.  If not found,
+   the user can enter the address manually.
 """
 
 from __future__ import annotations
@@ -77,8 +77,8 @@ def _validate_address(value: str) -> str:
 
 # ── Config flow ────────────────────────────────────────────────────────────────
 
-class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle the Govee H601E config-entry creation flow.
+class GoveeH6099ConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle the Govee H6099 config-entry creation flow.
 
     Steps
     -----
@@ -92,9 +92,9 @@ class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> GoveeH601EOptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> GoveeH6099OptionsFlow:
         """Return the options flow handler for this config entry."""
-        return GoveeH601EOptionsFlow(config_entry)
+        return GoveeH6099OptionsFlow(config_entry)
 
     def __init__(self) -> None:
         """Initialise flow instance variables."""
@@ -168,7 +168,7 @@ class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="bluetooth_confirm",
-            data_schema=_build_finish_schema(self._discovered_name or "Govee H601E"),
+            data_schema=_build_finish_schema(self._discovered_name or "Govee H6099"),
             description_placeholders={
                 "address": self._discovered_address,
                 "name": self._discovered_name or self._discovered_address,
@@ -182,7 +182,7 @@ class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the initial manual-entry step shown in the integrations menu.
 
-        If previously discovered H601E devices exist in the Bluetooth cache,
+        If previously discovered H6099 devices exist in the Bluetooth cache,
         they are offered as a list.  Otherwise a free-text address field is
         shown.
 
@@ -214,7 +214,7 @@ class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
 
                 self._discovered_address = address
-                self._discovered_name = user_input.get(CONF_NAME) or f"Govee H601E {address[-5:]}"
+                self._discovered_name = user_input.get(CONF_NAME) or f"Govee H6099 {address[-5:]}"
                 return self.async_create_entry(
                     title=self._discovered_name,
                     data={
@@ -239,7 +239,7 @@ class GoveeH601EConfigFlow(ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Required(CONF_MAC): address_field,
-                vol.Optional(CONF_NAME, default="Govee H601E"): str,
+                vol.Optional(CONF_NAME, default="Govee H6099"): str,
                 vol.Required(
                     CONF_CONNECTION_MODE, default=CONNECTION_MODE_PERSISTENT
                 ): vol.In(
@@ -264,7 +264,7 @@ def _build_finish_schema(default_name: str) -> vol.Schema:
     """Return the confirmation / finish step schema.
 
     Args:
-        default_name: Pre-filled display name for the lamp.
+        default_name: Pre-filled display name for the device.
 
     Returns:
         Voluptuous schema for the form.
@@ -286,10 +286,10 @@ def _build_finish_schema(default_name: str) -> vol.Schema:
 
 # ── Options flow ───────────────────────────────────────────────────────────────
 
-class GoveeH601EOptionsFlow(OptionsFlow):
+class GoveeH6099OptionsFlow(OptionsFlow):
     """Options flow for changing the BLE connection mode after initial setup.
 
-    Accessible via Settings → Devices & Services → Govee H601E → Configure.
+    Accessible via Settings → Devices & Services → Govee H6099 → Configure.
     Changes are applied live to the running coordinator without a full reload.
     """
 

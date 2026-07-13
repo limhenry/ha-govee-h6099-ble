@@ -1,6 +1,6 @@
 {
   "domain": "govee_h6099",
-  "name": "Govee H6099 Ceiling Light",
+  "name": "Govee TV Backlight 3 Lite (H6099/H6097)",
   "bluetooth": [
     {"service_uuid": "00010203-0405-0607-0809-0a0b0c0d1910"},
     {"local_name": "GVH*"},

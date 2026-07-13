@@ -1,6 +1,6 @@
-"""Switch platform for the Govee H601E integration.
+"""Switch platform for the Govee H6099 integration.
 
-Provides a single :class:`GoveeConnectionModeSwitch` entity per lamp that lets
+Provides a single :class:`GoveeConnectionModeSwitch` entity per light that lets
 the user toggle between *persistent* and *on-demand* BLE connection modes from
 the Home Assistant UI without having to reconfigure the integration.
 
@@ -55,16 +55,16 @@ async def async_setup_entry(
 
     Args:
         hass:               Home Assistant instance.
-        entry:              Config entry for this lamp.
+        entry:              Config entry for this light.
         async_add_entities: Callback to register the new entities.
     """
     coordinator: GoveeCoordinator = hass.data[DOMAIN][entry.entry_id]
-    name: str = entry.data.get("name", "Govee H601E")
+    name: str = entry.data.get("name", "Govee H6099")
     async_add_entities([GoveeConnectionModeSwitch(coordinator, entry, name)])
 
 
 class GoveeConnectionModeSwitch(SwitchEntity):
-    """Switch that toggles the BLE connection mode for a Govee H601E lamp.
+    """Switch that toggles the BLE connection mode for a Govee H6099 light.
 
     ON  = persistent (one permanent BLE session, heartbeat running)
     OFF = on-demand  (transient connection per command)
@@ -78,18 +78,18 @@ class GoveeConnectionModeSwitch(SwitchEntity):
         self,
         coordinator: GoveeCoordinator,
         entry: ConfigEntry,
-        lamp_name: str,
+        friendly_name: str,
     ) -> None:
         """Initialise the switch entity.
 
         Args:
             coordinator: Coordinator managing the BLE connection.
             entry:       Config entry.
-            lamp_name:   User-assigned display name of the lamp.
+            friendly_name: User-assigned display name of the light.
         """
         self._coordinator = coordinator
         self._entry = entry
-        self._lamp_name = lamp_name
+        self._friendly_name = friendly_name
         self._attr_unique_id = f"{entry.data[CONF_MAC]}{SUFFIX_PERSIST}"
         self._attr_name = "Persistent connection"
         self._remove_callback: Callable[[], None] | None = None
@@ -101,7 +101,7 @@ class GoveeConnectionModeSwitch(SwitchEntity):
         """Return device registry info (same device as the light entities)."""
         return DeviceInfo(
             identifiers={(DOMAIN, self._entry.data[CONF_MAC])},
-            name=self._lamp_name,
+            name=self._friendly_name,
             manufacturer=MANUFACTURER,
             model=MODEL,
         )

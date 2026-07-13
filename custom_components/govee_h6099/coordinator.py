@@ -1,6 +1,6 @@
-"""Govee H601E coordinator.
+"""Govee H6099 coordinator.
 
-The coordinator is the central hub for each physical lamp registered in Home
+The coordinator is the central hub for each physical light registered in Home
 Assistant.  It owns the BLE connection lifecycle, performs the cryptographic
 handshake, sends commands and distributes state changes to the registered
 light and switch entities.
@@ -86,12 +86,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class GoveeCoordinator:
-    """Manages the BLE connection and state for a single Govee H601E lamp.
+    """Manages the BLE connection and state for a single Govee H6099 light.
 
     Attributes:
-        address:          BLE address of the lamp (MAC or CoreBluetooth UUID).
+        address:          BLE address of the light (MAC or CoreBluetooth UUID).
         connection_mode:  Active connection mode (``persistent`` / ``on_demand``).
-        state:            Current known state of the lamp.
+        state:            Current known state of the light.
     """
 
     def __init__(self, hass: HomeAssistant, address: str, connection_mode: str) -> None:
@@ -222,19 +222,15 @@ class GoveeCoordinator:
     # ── Command API ─────────────────────────────────────────────────────────────
 
     async def async_turn_on(self) -> None:
-        """Turn the lamp on (master power)."""
+        """Turn the light on (master power)."""
         if await self._send_command(cmd_power(True), label="POWER_ON"):
             self.state.is_on = True
-            self.state.center.is_on = True
-            self.state.ring.is_on = True
             self._notify_listeners()
 
     async def async_turn_off(self) -> None:
-        """Turn the lamp off (master power)."""
+        """Turn the light off (master power)."""
         if await self._send_command(cmd_power(False), label="POWER_OFF"):
             self.state.is_on = False
-            self.state.center.is_on = False
-            self.state.ring.is_on = False
             self._notify_listeners()
 
     # ── Internal connection helpers ────────────────────────────────────────────
@@ -455,14 +451,12 @@ class GoveeCoordinator:
     async def _async_request_state(self) -> None:
         """Trigger a state sync immediately after (re)connecting.
 
-        Sends a keepalive frame (0xAA/0x36).  The device echoes it back with
-        per-zone power states in bytes[2..3], which :meth:`_on_notification`
-        parses via ``_parse_heartbeat()`` and applies to :attr:`state`.
+        Sends a keepalive frame (0xAA/0x36).  The device echoes it back, which
+        :meth:`_on_notification` parses via ``_parse_heartbeat()`` and applies
+        to :attr:`state`.
 
-        This gives us accurate on/off state for each zone right after a
-        (re)connect, without requiring any destructive write command.
-        Brightness, colour and ring-effect state are still tracked optimistically
-        because the protocol offers no non-destructive query for those values.
+        This gives us accurate on/off state right after a (re)connect,
+        without requiring any destructive write command.
         """
         await self._send_persistent(cmd_keepalive(), "STATE_QUERY")
 
@@ -602,7 +596,7 @@ class GoveeCoordinator:
           ``_last_cmd_sent_at`` is 0.0 so the gap is enormous): the heartbeat
           is treated as authoritative and both ON and OFF are applied.  This
           is what makes the state-sync after (re)connect pick up the real
-          physical power state even when the lamp is off.
+          physical power state even when the light is off.
 
         Command echoes (``from_heartbeat=False``) do not carry power state –
         ``_parse_0x33_0x01`` returns an empty ``StateUpdate`` so that stale
@@ -612,7 +606,7 @@ class GoveeCoordinator:
         s = self.state
 
         if from_heartbeat:
-            # The H601E sends proactive 0xAA/0x36 notifications every few
+            # The H6099 sends proactive 0xAA/0x36 notifications every few
             # seconds with plain[2]=0, plain[3]=0 regardless of physical state.
             # Power state is therefore NOT extracted from keepalive echoes
             # (_parse_heartbeat returns an empty StateUpdate); the fields below

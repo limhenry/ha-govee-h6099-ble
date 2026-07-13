@@ -1,11 +1,10 @@
-"""Light platform for the Govee H601E integration.
+"""Light platform for the Govee H6099 integration.
 
-Three :class:`~homeassistant.components.light.LightEntity` instances are
-created per physical lamp:
+A single :class:`~homeassistant.components.light.LightEntity` instance is
+created per physical light:
 
 ``GoveeMainLight``  (``light.<name>``)
-    Master power switch for the entire lamp.  Turning it on/off affects both
-    the centre panel and the outer ring.
+    Master power switch for the entire light.
 """
 
 from __future__ import annotations
@@ -48,17 +47,15 @@ async def async_setup_entry(
 
     Args:
         hass:               Home Assistant instance.
-        entry:              Config entry for this lamp.
+        entry:              Config entry for this light.
         async_add_entities: Callback to register the new entities with HA.
     """
     coordinator: GoveeCoordinator = hass.data[DOMAIN][entry.entry_id]
-    name: str = entry.data.get("name", "Govee H601E")
+    name: str = entry.data.get("name", "Govee H6099")
 
     async_add_entities(
         [
             GoveeMainLight(coordinator, entry, name),
-            # GoveeCenterLight(coordinator, entry, name),
-            # GoveeRingLight(coordinator, entry, name),
         ]
     )
 
@@ -92,7 +89,7 @@ def _device_info(entry: ConfigEntry, name: str) -> DeviceInfo:
 # ═════════════════════════════════════════════════════════════════════════════
 
 class _GoveeBaseLight(LightEntity, RestoreEntity):
-    """Shared base class for all three Govee H601E light entities.
+    """Shared base class for Govee H6099 light entities.
 
     Handles coordinator subscription, availability tracking, and HA state
     restoration across restarts (via :class:`~homeassistant.helpers.restore_state.RestoreEntity`).
@@ -110,13 +107,13 @@ class _GoveeBaseLight(LightEntity, RestoreEntity):
         """Initialise the base entity.
 
         Args:
-            coordinator: Coordinator managing this lamp's BLE connection.
+            coordinator: Coordinator managing this light's BLE connection.
             entry:       Config entry.
-            name:        User-assigned display name of the lamp.
+            name:        User-assigned display name of the light.
         """
         self._coordinator = coordinator
         self._entry = entry
-        self._lamp_name = name
+        self._friendly_name = name
         self._remove_callback: Callable[[], None] | None = None
 
     @property
@@ -127,7 +124,7 @@ class _GoveeBaseLight(LightEntity, RestoreEntity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return device registry info shared by all three entities."""
-        return _device_info(self._entry, self._lamp_name)
+        return _device_info(self._entry, self._friendly_name)
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to coordinator state updates when the entity is added."""
@@ -147,7 +144,7 @@ class _GoveeBaseLight(LightEntity, RestoreEntity):
 # ═════════════════════════════════════════════════════════════════════════════
 
 class GoveeMainLight(_GoveeBaseLight):
-    """Master on/off light entity for the Govee H601E.
+    """Master on/off light entity for the Govee H6099.
 
     Turning this light on or off sends the global power command which affects
     both the centre panel and the outer ring simultaneously.
@@ -187,17 +184,13 @@ class GoveeMainLight(_GoveeBaseLight):
 
     @property
     def is_on(self) -> bool:
-        """Return ``True`` when the lamp is powered on."""
+        """Return ``True`` when the light is powered on."""
         return self._coordinator.state.is_on
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Turn the lamp on.
-
-        Any extra keyword arguments (brightness, colour) are ignored here;
-        those are handled by the centre/ring entities.
-        """
+        """Turn the light on."""
         await self._coordinator.async_turn_on()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn the lamp off."""
+        """Turn the light off."""
         await self._coordinator.async_turn_off()

@@ -1,4 +1,4 @@
-"""Constants for the Govee H601E integration.
+"""Constants for the Govee H6099 integration.
 
 All domain-wide constants, configuration keys, and default values are
 centralised here so that other modules can import them without creating
@@ -9,16 +9,16 @@ from __future__ import annotations
 
 # ── Integration identity ───────────────────────────────────────────────────────
 
-DOMAIN = "govee_h601e"
+DOMAIN = "govee_h6099"
 """The HA domain / unique identifier for this integration."""
 
 MANUFACTURER = "Govee"
-MODEL = "H601E"
+MODEL = "H6099"
 
 # ── Config-entry / options keys ────────────────────────────────────────────────
 
 CONF_MAC = "mac"
-"""BLE MAC address (or CoreBluetooth UUID on macOS) of the lamp."""
+"""BLE MAC address (or CoreBluetooth UUID on macOS) of the device."""
 
 CONF_CONNECTION_MODE = "connection_mode"
 """Persistent vs. on-demand connection mode, stored in the config entry."""
@@ -33,6 +33,10 @@ CONNECTION_MODE_ON_DEMAND = "on_demand"
 """Open a BLE connection only while sending a command, then disconnect."""
 
 CONNECTION_MODE_DEFAULT = CONNECTION_MODE_PERSISTENT
+
+# ── Entity unique-ID suffixes ──────────────────────────────────────────────────
+
+SUFFIX_PERSIST = "_persist"
 
 # ── HA platform names forwarded from this integration ─────────────────────────
 
@@ -67,7 +71,7 @@ session key instead of performing a new connect + handshake cycle."""
 # ── Govee-specific BLE UUIDs (from APK reverse engineering) ───────────────────
 
 GOVEE_SERVICE_UUID = "00010203-0405-0607-0809-0a0b0c0d1910"
-"""Primary GATT service UUID used by the H601E (and related H604x family)."""
+"""Primary GATT service UUID used by the H6099."""
 
 GOVEE_WRITE_UUID = "00010203-0405-0607-0809-0a0b0c0d2b11"
 """Write characteristic – commands are written here (write without response)."""
@@ -78,4 +82,4 @@ GOVEE_NOTIFY_UUID = "00010203-0405-0607-0809-0a0b0c0d2b10"
 # ── Local-name patterns for BLE advertisement scanning ────────────────────────
 
 GOVEE_LOCAL_NAME_PREFIXES: tuple[str, ...] = ("GVH", "Govee", "govee", "ihoment")
-"""Known prefixes in the BLE advertisement local-name field for Govee lamps."""
+"""Known prefixes in the BLE advertisement local-name field for Govee devices."""

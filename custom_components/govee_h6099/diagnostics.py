@@ -1,7 +1,7 @@
-"""Diagnostics support for the Govee H601E integration.
+"""Diagnostics support for the Govee H6099 integration.
 
 Users can download a redacted JSON snapshot from
-Settings → Devices & Services → Govee H601E → three-dot menu → Download diagnostics.
+Settings → Devices & Services → Govee H6099 → three-dot menu → Download diagnostics.
 
 The MAC address is redacted from the output to avoid sharing device identifiers
 in public bug reports.
@@ -25,7 +25,7 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,
     entry: ConfigEntry,
 ) -> dict[str, Any]:
-    """Return diagnostics for a Govee H601E config entry.
+    """Return diagnostics for a Govee H6099 config entry.
 
     Args:
         hass:  Home Assistant instance.

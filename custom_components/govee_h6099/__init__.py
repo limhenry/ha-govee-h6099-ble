@@ -1,8 +1,6 @@
-"""Govee H601E BLE Ceiling Light – Home Assistant integration.
+"""Govee TV Backlight 3 Lite (H6099/H6097) – Home Assistant integration.
 
-This integration provides local-push BLE control for the Govee H601E (and
-compatible H604x) ceiling lamp directly within Home Assistant, with no cloud
-dependency.
+This integration provides local-push BLE control for the Govee TV Backlight 3 Lite (H6099/H6097) directly within Home Assistant, with no cloud dependency.
 
 Architecture overview
 ---------------------
@@ -11,7 +9,7 @@ Architecture overview
     notification parser.  Has zero Home Assistant dependencies.
 
 ``govee/scanner.py``
-    BLE advertisement helpers for detecting H601E devices.
+    BLE advertisement helpers for detecting H6099 devices.
 
 ``coordinator.py``
     :class:`~coordinator.GoveeCoordinator` manages the BLE connection
@@ -19,8 +17,8 @@ Architecture overview
     commands and distributes state changes to entities.
 
 ``light.py``
-    Three :class:`homeassistant.components.light.LightEntity` subclasses:
-    main (on/off), centre panel (brightness + CT + RGB) and outer ring (RGB).
+    A single :class:`homeassistant.components.light.LightEntity` subclass:
+    main (on/off).
 
 ``switch.py``
     :class:`homeassistant.components.switch.SwitchEntity` that toggles the
@@ -51,9 +49,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up a Govee H601E lamp from a config entry.
+    """Set up a Govee H6099 light from a config entry.
 
-    Creates a :class:`~coordinator.GoveeCoordinator` for the lamp, starts it
+    Creates a :class:`~coordinator.GoveeCoordinator` for the light, starts it
     (establishing the BLE connection in persistent mode), stores it in
     ``hass.data`` and forwards setup to the registered platforms.
 
@@ -73,7 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     _LOGGER.debug(
-        "Setting up Govee H601E: address=%s, mode=%s", address, connection_mode
+        "Setting up Govee H6099: address=%s, mode=%s", address, connection_mode
     )
 
     coordinator = GoveeCoordinator(
@@ -121,7 +119,7 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry and disconnect from the lamp.
+    """Unload a config entry and disconnect from the light.
 
     Args:
         hass:  Home Assistant instance.
@@ -133,6 +131,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         coordinator: GoveeCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
         await coordinator.async_stop()
-        _LOGGER.debug("Govee H601E entry unloaded: %s", entry.data[CONF_MAC])
+        _LOGGER.debug("Govee H6099 entry unloaded: %s", entry.data[CONF_MAC])
 
     return unload_ok

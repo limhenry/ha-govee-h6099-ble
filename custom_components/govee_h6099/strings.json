@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add Govee H601E",
-        "description": "Enter the BLE address of your Govee H601E lamp, or select a discovered device from the list.",
+        "title": "Add Govee H6099",
+        "description": "Enter the BLE address of your Govee H6099 light, or select a discovered device from the list.",
         "data": {
           "mac": "BLE Address",
           "name": "Display Name",
@@ -11,7 +11,7 @@
         }
       },
       "bluetooth_confirm": {
-        "title": "Confirm Govee H601E",
+        "title": "Confirm Govee H6099",
         "description": "Found **{name}** ({address}).\nAssign a display name and choose a connection mode.",
         "data": {
           "name": "Display Name",
@@ -21,7 +21,7 @@
     },
     "abort": {
       "already_configured": "This device is already configured.",
-      "not_govee_device": "The discovered device does not appear to be a Govee lamp.",
+      "not_govee_device": "The discovered device does not appear to be a Govee light.",
       "device_address_unavailable": "Device address lost during setup. Please try again."
     },
     "error": {
@@ -32,7 +32,7 @@
     "step": {
       "init": {
         "title": "Connection settings",
-        "description": "Choose how the integration connects to the lamp over Bluetooth.",
+        "description": "Choose how the integration connects to the light over Bluetooth.",
         "data": {
           "connection_mode": "Connection Mode"
         }
@@ -41,8 +41,8 @@
   },
   "issues": {
     "device_unreachable": {
-      "title": "Govee H601E unreachable",
-      "description": "**{address}** has been unreachable for an extended period. Check that the lamp is powered on and within Bluetooth range of your Home Assistant host."
+      "title": "Govee H6099 unreachable",
+      "description": "**{address}** has been unreachable for an extended period. Check that the light is powered on and within Bluetooth range of your Home Assistant host."
     }
   }
 }

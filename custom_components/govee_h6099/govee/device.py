@@ -1,7 +1,6 @@
-"""Govee H601E protocol layer.
+"""Govee H6099 protocol layer.
 
-This module contains **all** protocol logic for the Govee H601E BLE ceiling
-lamp.  It has **no** dependency on Home Assistant; every function and class
+This module contains **all** protocol logic for the Govee TV Backlight 3 Lite (H6099/H6097).  It has **no** dependency on Home Assistant; every function and class
 here can be tested with plain Python + pycryptodome.
 
 Cryptography (reverse-engineered from com.govee.encryp.ble.Safe):
@@ -44,7 +43,7 @@ NOTIFY_UUID = "00010203-0405-0607-0809-0a0b0c0d2b10"
 """GATT characteristic UUID for receiving device notifications."""
 
 SERVICE_UUID = "00010203-0405-0607-0809-0a0b0c0d1910"
-"""Primary GATT service UUID advertised by the H601E."""
+"""Primary GATT service UUID advertised by the H6099."""
 
 # ── Static communication key ───────────────────────────────────────────────────
 # Derived from APK: AESUtils.decode(app_communication, app_session)
@@ -62,7 +61,7 @@ COMM_KEY: bytes = bytes.fromhex("4d616b696e674c696665536d61727465")
 
 @dataclass
 class GoveeDeviceState:
-    """Complete state snapshot of a single Govee H601E lamp.
+    """Complete state snapshot of a single Govee H6099 device.
 
     Home-Assistant entities read from and write to this object via the
     coordinator.  Fields are updated both optimistically (on command send) and
@@ -70,7 +69,7 @@ class GoveeDeviceState:
     """
 
     is_on: bool = False
-    """Master power state (affects both centre and ring)."""
+    """Master power state."""
 
 @dataclass
 class StateUpdate:
@@ -79,10 +78,6 @@ class StateUpdate:
     Fields default to ``None`` meaning "not carried by this notification".
     The coordinator merges only the non-``None`` fields into
     :class:`GoveeDeviceState`.
-
-    The ``ring_present`` sentinel is needed because ``ring_effect`` may
-    legitimately be ``None`` (solid colour, no active effect), which would
-    otherwise be indistinguishable from "ring state not present in this frame".
     """
 
     # ── Power ─────────────────────────────────────────────────────────────────
@@ -405,28 +400,15 @@ class ParsedNotification:
     session_key: bytes | None = None
     state_update: StateUpdate | None = None
 
-
-# ── Ring sub-effect type → effect name mapping ────────────────────────────────
-# Values must match the RING_EFFECT_* constants in const.py.
-
-_RING_SUBEFFECT_NAMES: dict[int, str] = {
-    0x01: "Solid",
-    0x06: "Gradient",
-    0x07: "Chase",
-    0x0A: "Strobe",
-    0x0B: "Breathe",
-}
-
-
 # ── Notification payload parsers ──────────────────────────────────────────────
 
 def _parse_heartbeat(plain: bytes) -> StateUpdate:
     """Parse a decrypted 0xAA/0x36 keepalive echo.
 
-    The H601E sends proactive keepalive notifications every few seconds with
+    The H6099 sends proactive keepalive notifications every few seconds with
     ``plain[2]=0, plain[3]=0`` regardless of physical power state.  Unlike the
     H604a (where those bytes encode ``center_on`` / ``ring_on`` per
-    ``ComposeLightHeartController.parseValidBytes()``), the H601E always zeroes
+    ``ComposeLightHeartController.parseValidBytes()``), the H6099 always zeroes
     them out, so extracting power state here would reset HA state to "off"
     every 2–3 seconds.
 
@@ -446,7 +428,7 @@ def _parse_0x33_0x01(plain: bytes) -> StateUpdate:
     """Parse a 0x33/0x01 power-command echo.
 
     Power state is intentionally NOT extracted here.  Some devices echo the
-    state *before* processing the command (i.e. the lamp echoes "off" in
+    state *before* processing the command (i.e. the device echoes "off" in
     response to an ON command), which would override the optimistic update set
     at send time and produce a spurious "on → off" logbook entry.
 
