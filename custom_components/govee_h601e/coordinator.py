@@ -67,27 +67,13 @@ from .const import (
     HEARTBEAT_INTERVAL,
     ON_DEMAND_IDLE_TIMEOUT,
     RECONNECT_INTERVAL,
-    # RING_EFFECT_BREATHE,
-    # RING_EFFECT_CHASE,
-    # RING_EFFECT_GRADIENT,
-    # RING_EFFECT_SOLID,
-    # RING_EFFECT_STROBE,
 )
 from .govee.device import (
     GoveeDeviceState,
-    # LightColorMode,
     NotificationType,
     StateUpdate,
-    # cmd_brightness,
-    # cmd_color_rgb_center,
-    # cmd_color_rgb_ring,
-    # cmd_color_temp,
     cmd_keepalive,
     cmd_power,
-    # cmd_ring_breathe,
-    # cmd_ring_chase,
-    # cmd_ring_gradient,
-    # cmd_ring_strobe,
     encrypt_command,
     make_hs1_frame,
     make_hs2_frame,
@@ -250,92 +236,6 @@ class GoveeCoordinator:
             self.state.center.is_on = False
             self.state.ring.is_on = False
             self._notify_listeners()
-
-    # async def async_set_brightness(self, brightness_pct: int) -> None:
-    #     """Set the global brightness (affects both centre and ring).
-
-    #     Args:
-    #         brightness_pct: Govee brightness percentage 0–100.
-    #     """
-    #     pct = max(0, min(100, brightness_pct))
-    #     if await self._send_command(cmd_brightness(pct), label="BRIGHTNESS"):
-    #         self.state.is_on = True
-    #         self.state.center.is_on = True
-    #         self.state.ring.is_on = True
-    #         self.state.brightness_pct = pct
-    #         self.state.center.brightness_pct = pct
-    #         self.state.ring.brightness_pct = pct
-    #         self._notify_listeners()
-
-    # async def async_set_center_color_temp(self, kelvin: int) -> None:
-    #     """Set centre-panel colour temperature.
-
-    #     Args:
-    #         kelvin: Colour temperature in Kelvin (2 200–6 500).
-    #     """
-    #     k = snap_kelvin(kelvin)
-    #     if await self._send_command(cmd_color_temp(k), label="COLOR_TEMP"):
-    #         self.state.is_on = True
-    #         self.state.center.is_on = True
-    #         self.state.center.color_mode = LightColorMode.COLOR_TEMP
-    #         self.state.center.color_temp_kelvin = k
-    #         self._notify_listeners()
-
-    # async def async_set_center_rgb(self, r: int, g: int, b: int) -> None:
-    #     """Set centre-panel RGB colour.
-
-    #     Args:
-    #         r, g, b: Red, green, blue components (0–255).
-    #     """
-    #     if await self._send_command(cmd_color_rgb_center(r, g, b), label="COLOR_PANEL"):
-    #         self.state.is_on = True
-    #         self.state.center.is_on = True
-    #         self.state.center.color_mode = LightColorMode.RGB
-    #         self.state.center.rgb = (r & 0xFF, g & 0xFF, b & 0xFF)
-    #         self._notify_listeners()
-
-    # async def async_set_ring_rgb(self, r: int, g: int, b: int) -> None:
-    #     """Set outer-ring RGB colour via the SubModeColor bitmask protocol (solid colour).
-
-    #     Uses bitmask ``3F 00 00`` (bits 0–5, outer ring segments only).
-
-    #     Args:
-    #         r, g, b: Red, green, blue components (0–255).
-    #     """
-    #     if await self._send_command(cmd_color_rgb_ring(r, g, b), label="COLOR_RING"):
-    #         self.state.is_on = True
-    #         self.state.ring.is_on = True
-    #         self.state.ring.color_mode = LightColorMode.RGB
-    #         self.state.ring.rgb = (r & 0xFF, g & 0xFF, b & 0xFF)
-    #         self.state.ring.effect = None  # Solid colour clears any active effect
-    #         self._notify_listeners()
-
-    # async def async_set_ring_effect(self, effect: str, r: int, g: int, b: int) -> None:
-    #     """Set an animated effect on the outer ring.
-
-    #     Args:
-    #         effect: One of the :data:`~const.RING_EFFECTS` names.
-    #         r, g, b: Primary colour for the effect (0–255).
-    #     """
-    #     if effect == RING_EFFECT_BREATHE:
-    #         frame = cmd_ring_breathe(r, g, b)
-    #     elif effect == RING_EFFECT_STROBE:
-    #         frame = cmd_ring_strobe(r, g, b)
-    #     elif effect == RING_EFFECT_CHASE:
-    #         frame = cmd_ring_chase(r, g, b)
-    #     elif effect == RING_EFFECT_GRADIENT:
-    #         frame = cmd_ring_gradient(r, g, b)
-    #     else:  # SOLID or unrecognised → plain solid colour
-    #         frame = cmd_color_rgb_ring(r, g, b)
-    #         effect = RING_EFFECT_SOLID
-
-    #     if await self._send_command(frame, label=f"RING_EFFECT_{effect.upper()}"):
-    #         self.state.is_on = True
-    #         self.state.ring.is_on = True
-    #         self.state.ring.color_mode = LightColorMode.RGB
-    #         self.state.ring.rgb = (r & 0xFF, g & 0xFF, b & 0xFF)
-    #         self.state.ring.effect = effect
-    #         self._notify_listeners()
 
     # ── Internal connection helpers ────────────────────────────────────────────
 
@@ -721,12 +621,6 @@ class GoveeCoordinator:
             if update.is_on and not s.is_on:
                 s.is_on = True
                 changed = True
-            # if update.center_is_on and not s.center.is_on:
-            #     s.center.is_on = True
-            #     changed = True
-            # if update.ring_is_on and not s.ring.is_on:
-            #     s.ring.is_on = True
-            #     changed = True
         else:
             # Command echo (0x33/0x04, 0x33/0x05, 0x33/0x50 …).
             # Power-state fields are intentionally left empty by _parse_0x33_0x01
@@ -735,39 +629,6 @@ class GoveeCoordinator:
             if update.is_on is not None and s.is_on != update.is_on:
                 s.is_on = update.is_on
                 changed = True
-            # if update.center_is_on is not None and s.center.is_on != update.center_is_on:
-            #     s.center.is_on = update.center_is_on
-            #     changed = True
-            # if update.ring_is_on is not None and s.ring.is_on != update.ring_is_on:
-            #     s.ring.is_on = update.ring_is_on
-            #     changed = True
-
-        # if update.brightness_pct is not None and s.brightness_pct != update.brightness_pct:
-        #     pct = update.brightness_pct
-        #     s.brightness_pct = pct
-        #     s.center.brightness_pct = pct
-        #     s.ring.brightness_pct = pct
-        #     changed = True
-
-        # if update.center_color_mode is not None and s.center.color_mode != update.center_color_mode:
-        #     s.center.color_mode = update.center_color_mode
-        #     changed = True
-
-        # if update.center_color_temp_kelvin is not None and s.center.color_temp_kelvin != update.center_color_temp_kelvin:
-        #     s.center.color_temp_kelvin = update.center_color_temp_kelvin
-        #     changed = True
-
-        # if update.center_rgb is not None and s.center.rgb != update.center_rgb:
-        #     s.center.rgb = update.center_rgb
-        #     changed = True
-
-        # if update.ring_present:
-        #     if update.ring_rgb is not None and s.ring.rgb != update.ring_rgb:
-        #         s.ring.rgb = update.ring_rgb
-        #         changed = True
-        #     if s.ring.effect != update.ring_effect:
-        #         s.ring.effect = update.ring_effect
-        #         changed = True
 
         if changed:
             self._notify_listeners()

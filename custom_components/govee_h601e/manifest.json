@@ -1,6 +1,6 @@
 {
-  "domain": "govee_h601e",
-  "name": "Govee H601E Ceiling Light",
+  "domain": "govee_h6099",
+  "name": "Govee H6099 Ceiling Light",
   "bluetooth": [
     {"service_uuid": "00010203-0405-0607-0809-0a0b0c0d1910"},
     {"local_name": "GVH*"},
@@ -11,7 +11,7 @@
   "codeowners": [],
   "config_flow": true,
   "dependencies": ["bluetooth"],
-  "documentation": "https://github.com/steinseifers/govee-h601e-ha",
+  "documentation": "https://github.com/limhenry/govee-h6099-ha",
   "integration_type": "device",
   "iot_class": "local_push",
   "requirements": ["bleak-retry-connector>=3.6.0", "pycryptodome>=3.19.0"],

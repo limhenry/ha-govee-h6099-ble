@@ -34,12 +34,6 @@ CONNECTION_MODE_ON_DEMAND = "on_demand"
 
 CONNECTION_MODE_DEFAULT = CONNECTION_MODE_PERSISTENT
 
-# ── Entity unique-ID suffixes ──────────────────────────────────────────────────
-
-SUFFIX_CENTER = "_center"
-SUFFIX_RING = "_ring"
-SUFFIX_PERSIST = "_persist"
-
 # ── HA platform names forwarded from this integration ─────────────────────────
 
 PLATFORMS: list[str] = ["light", "switch"]
@@ -85,38 +79,3 @@ GOVEE_NOTIFY_UUID = "00010203-0405-0607-0809-0a0b0c0d2b10"
 
 GOVEE_LOCAL_NAME_PREFIXES: tuple[str, ...] = ("GVH", "Govee", "govee", "ihoment")
 """Known prefixes in the BLE advertisement local-name field for Govee lamps."""
-
-# ── Ring light effects ─────────────────────────────────────────────────────────
-
-RING_EFFECT_SOLID = "Solid"
-"""Solid colour (default, subEffectType=0x01, KmpSubEffectCommon)."""
-
-RING_EFFECT_BREATHE = "Breathe"
-"""Breathing/pulse effect (subEffectType=0x0B, KmpSubEffectBreathe)."""
-
-RING_EFFECT_STROBE = "Strobe"
-"""Strobe/flash effect (subEffectType=0x0A, KmpSubEffectDuiJi)."""
-
-RING_EFFECT_CHASE = "Chase"
-"""Streamer/chase effect (subEffectType=0x07, KmpSubEffectStreamer)."""
-
-RING_EFFECT_GRADIENT = "Gradient"
-"""Two-colour gradient (subEffectType=0x06, KmpSubEffectSpeedColor).
-The second colour is the complementary hue of the primary colour."""
-
-RING_EFFECTS: list[str] = [
-    RING_EFFECT_SOLID,
-    RING_EFFECT_BREATHE,
-    RING_EFFECT_STROBE,
-    RING_EFFECT_CHASE,
-    RING_EFFECT_GRADIENT,
-]
-"""All supported ring light effect names, in display order."""
-
-# ── Colour-temperature range ───────────────────────────────────────────────────
-
-KELVIN_MIN: int = 2200
-"""Minimum supported colour temperature in Kelvin (H604a / H601E hardware limit)."""
-
-KELVIN_MAX: int = 6500
-"""Maximum supported colour temperature in Kelvin."""
